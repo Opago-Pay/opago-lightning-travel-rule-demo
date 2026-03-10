@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "@buildonspark/spark-sdk": "^0.6.7"
+  }
+}

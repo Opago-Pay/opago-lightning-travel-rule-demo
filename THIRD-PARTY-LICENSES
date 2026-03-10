@@ -1,0 +1,94 @@
+# Third-Party Software Licenses
+
+This file lists the open-source dependencies used by `opago-MiCA-reference`
+and their respective licenses.
+
+---
+
+## Runtime Dependencies
+
+### FastAPI
+- **Version**: >=0.115.0
+- **License**: MIT
+- **Repository**: https://github.com/tiangolo/fastapi
+- **Copyright**: Copyright (c) 2018 Sebastián Ramírez
+
+### Uvicorn
+- **Version**: >=0.30.0
+- **License**: BSD-3-Clause
+- **Repository**: https://github.com/encode/uvicorn
+- **Copyright**: Copyright © 2017-present, Encode OSS Ltd. All rights reserved.
+
+### Pydantic
+- **Version**: >=2.9.0
+- **License**: MIT
+- **Repository**: https://github.com/pydantic/pydantic
+- **Copyright**: Copyright (c) 2017 to present Pydantic Services Inc. and individual contributors.
+
+### pydantic-settings
+- **Version**: >=2.5.0
+- **License**: MIT
+- **Repository**: https://github.com/pydantic/pydantic-settings
+- **Copyright**: Copyright (c) 2022 Samuel Colvin and other contributors
+
+### python-jose
+- **Version**: >=3.3.0
+- **License**: MIT
+- **Repository**: https://github.com/mpdavis/python-jose
+- **Copyright**: Copyright (c) 2015 Michael P. Davis
+
+### cryptography
+- **Version**: >=43.0.0
+- **License**: Apache-2.0 OR BSD-3-Clause (dual-license)
+- **Repository**: https://github.com/pyca/cryptography
+- **Copyright**: Copyright (c) Individual contributors. All rights reserved.
+
+### python-dotenv
+- **Version**: >=1.0.0
+- **License**: BSD-3-Clause
+- **Repository**: https://github.com/theskumar/python-dotenv
+- **Copyright**: Copyright (c) 2014, Saurabh Kumar
+
+### httpx
+- **Version**: >=0.27.0
+- **License**: BSD-3-Clause
+- **Repository**: https://github.com/encode/httpx
+- **Copyright**: Copyright © 2019, Tom Christie. All rights reserved.
+
+### structlog
+- **Version**: >=24.4.0
+- **License**: MIT OR Apache-2.0 (dual-license)
+- **Repository**: https://github.com/hynek/structlog
+- **Copyright**: Copyright (c) 2013 Hynek Schlawack and Contributors
+
+---
+
+## Development Dependencies
+
+### pytest
+- **Version**: >=8.3.0
+- **License**: MIT
+- **Repository**: https://github.com/pytest-dev/pytest
+- **Copyright**: Copyright (c) 2004 Holger Krekel and others
+
+### pytest-asyncio
+- **Version**: >=0.24.0
+- **License**: Apache-2.0
+- **Repository**: https://github.com/pytest-dev/pytest-asyncio
+
+### pytest-cov
+- **Version**: >=5.0.0
+- **License**: MIT
+- **Repository**: https://github.com/pytest-dev/pytest-cov
+
+### ruff
+- **Version**: >=0.7.0
+- **License**: MIT
+- **Repository**: https://github.com/astral-sh/ruff
+- **Copyright**: Copyright (c) 2022 Astral Software Inc.
+
+### mypy
+- **Version**: >=1.12.0
+- **License**: MIT
+- **Repository**: https://github.com/python/mypy
+- **Copyright**: Copyright (c) 2012-2023 Jukka Lehtosalo and contributors

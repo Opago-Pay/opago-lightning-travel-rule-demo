@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>opago Travel Rule Demo — Compliance with German ePerso</title>
+<meta name="description" content="Split-screen travel rule compliance demo by opago, a license-pending CASP. Demonstrates real-time originator identification via German ePerso (eID) for FATF R.16 compliance.">
+
+<!-- Stylesheets -->
+<link rel="stylesheet" href="base.css">
+<link rel="stylesheet" href="style.css">
+
+<!-- identglue (AusweisApp2 eID integration) - v2 for Mac Desktop support -->
+<script src="https://unpkg.com/@ausweisapp2/identglue@2.0.0/dist/identglue.umd.js" defer></script>
+
+</head>
+<body>
+  <div class="app-shell" id="app">
+
+    <!-- ===== Top Bar ===== -->
+    <header class="top-bar">
+      <div class="top-bar__left">
+        <img src="assets/opago-logo-y_w.svg" alt="opago" class="top-bar__logo">
+        <span class="top-bar__title">Travel Rule Demo</span>
+        <span class="top-bar__badge">MiCA / FATF R.16</span>
+      </div>
+      <div class="top-bar__right">
+        <div class="top-bar__status" id="ws-status">
+          <span class="top-bar__status-dot" id="ws-dot"></span>
+          <span id="ws-status-text">Demo Ready</span>
+        </div>
+        <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">
+          <!-- Sun icon (shown in dark mode) -->
+          <svg id="icon-sun" style="display:none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5"/>
+            <line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+            <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+          </svg>
+          <!-- Moon icon (shown in light mode) -->
+          <svg id="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- ===== Split Screen ===== -->
+    <main class="split-screen">
+
+      <!-- ===== LEFT PANEL: Sending VASP (opago) ===== -->
+      <section class="panel panel--left" id="panel-left">
+        <div class="panel__header">
+          <div class="panel__header-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+            </svg>
+          </div>
+          <div class="panel__header-text">
+            <span class="panel__header-title">Sending wallet — self-custodial Spark</span>
+            <span class="panel__header-subtitle">Customer-controlled originator wallet</span>
+          </div>
+        </div>
+
+        <div class="panel__content" id="left-content">
+
+          <!-- Step 1: Resolve LNURL & Initiate -->
+          <div class="step active" id="step-1" data-step="1">
+            <div class="step__indicator">
+              <div class="step__number">1</div>
+              <div class="step__line"></div>
+            </div>
+            <div class="step__content">
+              <div class="step__title">Resolve LNURL &amp; Initiate Payment</div>
+              <div class="step__description">Resolve the receiving VASP's LNURL-pay endpoint and enter the amount to send.</div>
+
+              <div class="card" id="payment-form-card">
+                <div style="display:flex; flex-direction:column; gap:var(--space-4);">
+                  <div class="form-group">
+                    <label class="form-label">Receiver LNURL</label>
+                    <div class="form-input mono" style="font-size:var(--text-xs);word-break:break-all;background:var(--color-surface-raised);cursor:default;" id="lnurl-display">LNURL1DP68GURN8GHJ7AMPD3KX2AR0VEEKZAR0WD5XJTNRDAKJ7TNHV4KXCTTTDEHHWM30D3H82UNV9AMKJARGV3EXZAE0</div>
+                    <span class="form-hint">Fixed LNURL-pay endpoint of receiving VASP (opago)</span>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="amount-sats">Amount (sats)</label>
+                    <input type="number" id="amount-sats" class="form-input" placeholder="e.g. 2,100" value="2100" min="1">
+                    <span class="form-hint" id="amount-eur-hint">≈ loading EUR value...</span>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="beneficiary-vasp">Recipient VASP</label>
+                    <input type="text" id="beneficiary-vasp" class="form-input" placeholder="e.g. Kraken, Bitstamp" value="opago">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Sender Wallet Balance</label>
+                    <div class="form-input mono" id="sender-wallet-balance">Loading…</div>
+                  </div>
+                  <button class="btn btn--primary btn--full" id="btn-initiate">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                    Initiate Payment
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 2: Travel Rule Threshold -->
+          <div class="step" id="step-2" data-step="2">
+            <div class="step__indicator">
+              <div class="step__number">2</div>
+              <div class="step__line"></div>
+            </div>
+            <div class="step__content">
+              <div class="step__title">Travel Rule Threshold Check</div>
+              <div class="step__description">Determining if the transfer amount exceeds the €1,000 regulatory threshold.</div>
+              <div id="threshold-result"></div>
+            </div>
+          </div>
+
+          <!-- Step 3: ePerso Identification -->
+          <div class="step" id="step-3" data-step="3">
+            <div class="step__indicator">
+              <div class="step__number">3</div>
+              <div class="step__line"></div>
+            </div>
+            <div class="step__content">
+              <div class="step__title">Identify with ePerso</div>
+              <div class="step__description">German Personalausweis (eID) identification via AusweisApp2.</div>
+              <div id="eid-section" class="eid-section" style="display:none;">
+                <div class="eid-status not-detected" id="eid-status">
+                  <span class="eid-status__dot"></span>
+                  <span id="eid-status-text">Checking for AusweisApp2...</span>
+                </div>
+
+                <div class="eid-methods" id="eid-methods">
+                  <button class="btn btn--primary" id="btn-eid-desktop" disabled>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                    Desktop eID
+                  </button>
+                  <button class="btn btn--ghost btn--sm" id="btn-eid-simulate" title="Simulate eID result (demo mode)">
+                    Simulate
+                  </button>
+                </div>
+
+                <div id="eid-progress" style="display:none;">
+                  <div style="display:flex; align-items:center; gap:var(--space-2); margin-bottom:var(--space-2);">
+                    <div class="spinner"></div>
+                    <span class="text-sm" id="eid-progress-text">Identification in progress...</span>
+                  </div>
+                  <div class="progress-bar">
+                    <div class="progress-bar__fill" id="eid-progress-bar" style="width:0%"></div>
+                  </div>
+                </div>
+
+                <div id="eid-result" style="display:none;"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 4: Send Travel Rule Data -->
+          <div class="step" id="step-4" data-step="4">
+            <div class="step__indicator">
+              <div class="step__number">4</div>
+              <div class="step__line"></div>
+            </div>
+            <div class="step__content">
+              <div class="step__title">Send Travel Rule Data</div>
+              <div class="step__description">Packaging identified originator data and sending to beneficiary VASP.</div>
+              <div id="travel-rule-send-section" style="display:none;"></div>
+            </div>
+          </div>
+
+          <!-- Step 5: Invoice Received -->
+          <div class="step" id="step-5" data-step="5">
+            <div class="step__indicator">
+              <div class="step__number">5</div>
+              <div class="step__line"></div>
+            </div>
+            <div class="step__content">
+              <div class="step__title">Invoice Received</div>
+              <div class="step__description">BOLT11 invoice received from the beneficiary VASP after compliance approval.</div>
+              <div id="invoice-received-section" style="display:none;"></div>
+            </div>
+          </div>
+
+          <!-- Step 6: Payment Complete -->
+          <div class="step" id="step-6" data-step="6">
+            <div class="step__indicator">
+              <div class="step__number">6</div>
+            </div>
+            <div class="step__content">
+              <div class="step__title">Payment Complete</div>
+              <div class="step__description">Transfer finalized with full regulatory compliance.</div>
+              <div id="payment-complete-section" style="display:none;"></div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ===== RIGHT PANEL: Receiving VASP ===== -->
+      <section class="panel panel--right" id="panel-right">
+        <div class="panel__header">
+          <div class="panel__header-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 002 2h16a2 2 0 002-2v-6l-3.45-6.89A2 2 0 0016.76 4H7.24a2 2 0 00-1.79 1.11z"/>
+            </svg>
+          </div>
+          <div class="panel__header-text">
+            <span class="panel__header-title">Receiving VASP</span>
+            <span class="panel__header-subtitle" id="receiving-vasp-name">opago — License-pending CASP</span>
+          </div>
+        </div>
+
+        <div class="panel__content" id="right-content">
+          <div class="step receiver-step active" id="receiver-step-1" data-step="1">
+            <div class="step__indicator">
+              <div class="step__number">1</div>
+              <div class="step__line"></div>
+            </div>
+            <div class="step__content">
+              <div class="step__title">Awaiting Incoming Transfer</div>
+              <div class="step__description">Receiver is online and waiting for the self-custodial sender to initiate the transfer.</div>
+              <div id="receiver-step-1-content" class="card"></div>
+            </div>
+          </div>
+
+          <div class="step receiver-step" id="receiver-step-2" data-step="2">
+            <div class="step__indicator">
+              <div class="step__number">2</div>
+              <div class="step__line"></div>
+            </div>
+            <div class="step__content">
+              <div class="step__title">Awaiting Originator Package</div>
+              <div class="step__description">Receiver expects the identified originator package after ePerso verification.</div>
+              <div id="receiver-step-2-content" class="card"></div>
+            </div>
+          </div>
+
+          <div class="step receiver-step" id="receiver-step-3" data-step="3">
+            <div class="step__indicator">
+              <div class="step__number">3</div>
+              <div class="step__line"></div>
+            </div>
+            <div class="step__content">
+              <div class="step__title">Compliance Review</div>
+              <div class="step__description">Receiver checks the incoming travel rule payload, sanctions state, and eIDAS proof.</div>
+              <div id="receiver-step-3-content" class="card"></div>
+            </div>
+          </div>
+
+          <div class="step receiver-step" id="receiver-step-4" data-step="4">
+            <div class="step__indicator">
+              <div class="step__number">4</div>
+              <div class="step__line"></div>
+            </div>
+            <div class="step__content">
+              <div class="step__title">Invoice Issued</div>
+              <div class="step__description">Receiver issues the invoice after compliance approval.</div>
+              <div id="receiver-step-4-content" class="card"></div>
+            </div>
+          </div>
+
+          <div class="step receiver-step" id="receiver-step-5" data-step="5">
+            <div class="step__indicator">
+              <div class="step__number">5</div>
+            </div>
+            <div class="step__content">
+              <div class="step__title">Receiver Confirmation</div>
+              <div class="step__description">Receiver confirms the transfer as fully settled and compliant.</div>
+              <div id="receiver-step-5-content" class="card"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- ===== Footer ===== -->
+    <footer class="app-footer">
+      <span class="app-footer__text">opago Travel Rule Compliance Demo</span>
+    </footer>
+
+  </div>
+
+  <!-- Application Scripts -->
+  <script>
+    (function() {
+      var theme = localStorage.getItem('opago-theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', theme === 'light' ? 'light' : '');
+      var iconSun = document.getElementById('icon-sun');
+      var iconMoon = document.getElementById('icon-moon');
+      document.getElementById('theme-toggle').addEventListener('click', function() {
+        var isLight = document.documentElement.getAttribute('data-theme') === 'light';
+        document.documentElement.setAttribute('data-theme', isLight ? '' : 'light');
+        localStorage.setItem('opago-theme', isLight ? 'dark' : 'light');
+        if (iconSun) iconSun.style.display = isLight ? 'block' : 'none';
+        if (iconMoon) iconMoon.style.display = isLight ? 'none' : 'block';
+      });
+      if (iconSun) iconSun.style.display = theme === 'light' ? 'block' : 'none';
+      if (iconMoon) iconMoon.style.display = theme === 'light' ? 'none' : 'block';
+    })();
+  </script>
+  <script src="websocket.js"></script>
+  <script src="eid.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
